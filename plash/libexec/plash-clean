@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# usage: plash cleantmp
-# cleanup plash's tmp directory
+# usage: plash clean
+# clean older containers
 
 import os
 from time import time
@@ -19,9 +19,10 @@ TIME_UNITS = {
     'd': 60 * 60 * 24, # days
     'w': 60 * 60 * 24 * 7, # weeks
 }
+DEFAULT_ARG = '4w'
 
 time_diff = 0
-for arg in sys.argv[1:]:
+for arg in sys.argv[1:] or [DEFAULT_ARG]:
     try:
         unit = arg[-1].lower()
         amount = int(arg[:-1])
