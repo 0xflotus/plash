@@ -35,7 +35,7 @@ index_dir = os.path.join(utils.get_plash_data(), 'index')
 for container_id in os.listdir(index_dir):
     if container_id == '0': # the special root container, don't touch that one
         continue
-    abs_file = os.path.join(tmp, container_id)
+    abs_file = os.path.join(index_dir, container_id)
     try:
         mtime = os.stat(abs_file).st_mtime
     except FileNotFoundError:
