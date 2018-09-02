@@ -6,7 +6,7 @@ import plash
 from plash.utils import die
 
 SUBSUBCOMMANDS = [
-    'system'
+    'data'
 ]
 
 def die_helping():
@@ -40,4 +40,4 @@ binfilepath = os.path.join(libexec, binfile)
 try:
     os.execlp(binfilepath, binfile, *args)
 except FileNotFoundError:
-    die('no such command: {} (try `plash list`)'.format(not_found_debug))
+    die('no such command: {} (try `plash help`)'.format(not_found_debug))

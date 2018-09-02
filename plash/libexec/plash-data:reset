@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# usage: plash purge [ --yes ]
+# usage: plash data reset [ --yes ]
 # Deletes all build data unatomically.
 # Running containers relying on the build data will enter an undefined state.
 # Plashs behaviour while this command did not finish running returning an non zero exit code is undefined.

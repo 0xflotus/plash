@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+# usage: plash data
+# prints plash's data path
+from plash import utils
+print(utils.get_plash_data())
