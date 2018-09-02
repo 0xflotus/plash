@@ -127,7 +127,6 @@ def handle_build_args():
 
 def nodepath_or_die(container, allow_root_container=False):
     import subprocess
-
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
         return subprocess.check_output(

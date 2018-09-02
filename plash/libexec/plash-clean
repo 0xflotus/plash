@@ -3,6 +3,7 @@
 # clean older containers
 
 import os
+import shutil
 from time import time
 import sys
 from plash import utils
@@ -12,41 +13,99 @@ import subprocess
 utils.handle_help_flag()
 utils.assert_initialized()
 
-TIME_UNITS = {
-    's': 1, # seconds
-    'm': 60, # minutes
-    'h': 60 * 60, # hours
-    'd': 60 * 60 * 24, # days
-    'w': 60 * 60 * 24 * 7, # weeks
-}
-DEFAULT_ARG = '4w'
+plash_data = utils.get_plash_data()
 
-time_diff = 0
-for arg in sys.argv[1:] or [DEFAULT_ARG]:
+
+def remove_broken_links(dir):
+    count = 0
+    for file in os.listdir(dir):
+        full_path = os.path.join(dir, file)
+        try:
+            os.stat(full_path)
+        except FileNotFoundError:
+            try:
+                os.unlink(full_path)
+                count += 1
+            except FileNotFoundError:
+                pass # race condition, link removed by another process
+    return count
+
+#
+# Remove all broken links in $PLASH_DATA/index
+#
+index_dir = os.path.join(plash_data, 'index')
+count = remove_broken_links(index_dir)
+print('cleaned {} index links'.format(count), file=sys.stderr)
+
+#
+# Remove all broken links in $PLASH_DATA/cache_keys
+#
+cache_keys_dir = os.path.join(plash_data, 'cache_keys')
+count = remove_broken_links(cache_keys_dir)
+print('cleaned {} cache_keys links'.format(count), file=sys.stderr)
+
+#
+# Remove unused tmp dirs in $PLASH_DATA/tmp
+#
+deleted_tmps = 0
+tmp = os.path.join(utils.get_plash_data(), 'tmp')
+for file in os.listdir(tmp):
+    abs_file = os.path.join(tmp, file)
+
     try:
-        unit = arg[-1].lower()
-        amount = int(arg[:-1])
-        time_diff += TIME_UNITS[unit] * amount
-    except (ValueError, IndexError, KeyError):
-        utils.die('args must be like /[0-9][smhdw]/ not {}'.format(repr(arg)))
+        _, sid, pid, *_ = file.split('_')
+        pid = int(pid)
+    except ValueError:
+        print('bad {}'.format(abs_file), file=sys.stderr)
+        continue
 
-expire_older_than = time() - time_diff
+    try:
+        real_sid = os.getsid(pid)
+    except ProcessLookupError:
+        # no such pid, delete its tmp data
+        delete = True
+    else:
+        if str(sid) == str(real_sid):
+            # process still alive, don't delete its tmp dir
+            delete = False
+        else:
+            # sid mismatch, its another one, delete
+            delete = True
 
-index_dir = os.path.join(utils.get_plash_data(), 'index')
-for container_id in os.listdir(index_dir):
+    if delete:
+        # print('deleting {}'.format(abs_file), file=sys.stderr) # no noise
+        shutil.rmtree(abs_file)
+        deleted_tmps += 1
+print('cleaned {} unused tmp directories'.format(deleted_tmps), file=sys.stderr)
+
+#
+# Delete some older containers
+#
+arg_percent = 30
+def cmp(obj):
+    try:
+        return -int(obj)
+    except ValueError:
+        return 1
+index_dir = os.path.join(plash_data, 'index')
+indexes = os.listdir(index_dir)
+indexes.sort(key=cmp)
+delete_before_counter = round((arg_percent / 100.0) * len(indexes))
+for counter, container_id in enumerate(indexes):
+
     if container_id == '0': # the special root container, don't touch that one
         continue
-    abs_file = os.path.join(index_dir, container_id)
-    try:
-        mtime = os.stat(abs_file).st_mtime
-    except FileNotFoundError:
-        # link is pointing to nowhere because the build data was deleted
-        # we can safely delete the link now
-        try:
-            os.unlink(abs_file)
-        except FileNotFoundError:
-            pass # already deleted by other process
-        continue
 
-    if mtime < expire_older_than:
-        subprocess.call(['plash-rm', container_id]) # plash rm removes it atomically
+    if counter >= delete_before_counter:
+        break
+
+    index_path = os.path.join(index_dir, container_id)
+    node = os.readlink(index_path)
+    tmp = utils.mkdtemp()
+    try:
+        os.rename(node, tmp)
+    except FileNotFoundError:
+        # already deleted build, delete index
+        os.unlink(index_path)
+    shutil.rmtree(tmp)
+print('deleted {} of {} containers'.format(counter, len(indexes)), file=sys.stderr)
