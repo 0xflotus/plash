@@ -45,7 +45,8 @@ def remove_broken_links(dir):
 if '--clean-index' in user_args:
     index_dir = os.path.join(plash_data, 'index')
     count = remove_broken_links(index_dir)
-    print('cleaned {} index links'.format(count), file=sys.stderr)
+    if not '--quiet' in user_args:
+        print('cleaned {} index link(s)'.format(count), file=sys.stderr)
 
 #
 # Remove all broken links in $PLASH_DATA/cache_keys
@@ -53,7 +54,8 @@ if '--clean-index' in user_args:
 if '--clean-cache-keys' in user_args:
     cache_keys_dir = os.path.join(plash_data, 'cache_keys')
     count = remove_broken_links(cache_keys_dir)
-    print('cleaned {} cache_keys links'.format(count), file=sys.stderr)
+    if not '--quiet' in user_args:
+        print('cleaned {} cache_keys link(s)'.format(count), file=sys.stderr)
 
 #
 # Remove unused tmp dirs in $PLASH_DATA/tmp
@@ -88,4 +90,5 @@ if '--clean-tmp' in user_args:
             # print('deleting {}'.format(abs_file), file=sys.stderr) # no noise
             shutil.rmtree(abs_file)
             deleted_tmps += 1
-    print('cleaned {} unused tmp directories'.format(deleted_tmps), file=sys.stderr)
+    if not '--quiet' in user_args:
+        print('cleaned {} unused tmp directorie(s)'.format(deleted_tmps), file=sys.stderr)

@@ -15,7 +15,7 @@ unshare.unshare_if_user()
 DELETE_PERCENT = 50
 
 # we need to clean the index links since we suppose that each represents an container
-subprocess.call(['plash-data_clean', '--clean-index'])
+subprocess.call(['plash-data_clean', '--clean-index', '--quiet'])
 
 modified_times = []
 index_dir = os.path.join(utils.get_plash_data(), 'index')
@@ -29,6 +29,10 @@ for container_id in containers:
     modified_times.append((container_id, st.st_mtime))
 
 def key(item):
+    # get first all containers that are not sticky (timestamp is not zero),
+    # then all containers with the oldest modification timestamp,
+    # if modification timestamps are equal, get the containers with
+    # the lowest id last so we don't delete containers with children.
     container_id, timestamp = item
     if timestamp:
         sticky = 0
@@ -38,7 +42,6 @@ def key(item):
 
 modified_times.sort(key=key)
 sorted_containers = [i[0] for i in modified_times]
-assert 0, sorted_containers
 
 delete_until_index = int(math.ceil((DELETE_PERCENT / 100.0) * len(sorted_containers)))
 delete_containers = sorted_containers[:delete_until_index]

@@ -1,7 +1,7 @@
 #!/bin/sh
 # usage: plash disk-usage
 # prints plash's disk usage
-set -e
+set -eu
 PLASH_DATA=$(plash data)
 # plash sudo because we need to do that inside a user namespace so we can access the fs
 plash sudo du -sh "$PLASH_DATA"
