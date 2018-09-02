@@ -3,5 +3,6 @@
 # prints plash's disk usage
 set -e
 PLASH_DATA=$(python3 -c 'from plash.utils import get_plash_data; print(get_plash_data())')
-du -sh "$PLASH_DATA"
-du -sh "$PLASH_DATA"/tmp
+# plash sudo because we need to do that inside a user namespace so we can access the fs
+plash sudo du -sh "$PLASH_DATA"
+plash sudo du -sh "$PLASH_DATA"/tmp

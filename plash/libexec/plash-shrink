@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import os
+import math
+import sys
+import shutil
+from plash import utils
+
+DELETE_PERCENT = 50
+
+##
+## Delete some older containers
+##
+modified_times = []
+index_dir = os.path.join(utils.get_plash_data(), 'index')
+containers = os.listdir(index_dir)
+containers.remove('0') # don't mess around with the special root container
+for container_id in containers:
+    index_path = os.path.join(index_dir, container_id)
+    st = os.lstat(index_path)
+    modified_times.append((container_id, st.st_mtime))
+
+modified_times.sort(key=lambda i: (i[1], -int(i[0]))) # catch that ValuError in the int()
+sorted_containers = [i[0] for i in modified_times]
+
+delete_until_index = int(math.ceil((DELETE_PERCENT / 100.0) * len(sorted_containers)))
+delete_containers = sorted_containers[:delete_until_index]
+deleted_counter = 0
+for container_id in delete_containers:
+
+    # delete the container
+    index_path = os.path.join(index_dir, container_id)
+    node = os.readlink(index_path)
+    tmp = utils.mkdtemp()
+    try:
+        os.rename(node, tmp)
+    except FileNotFoundError:
+        # already deleted build, delete index
+        os.unlink(index_path)
+    shutil.rmtree(tmp)
+    deleted_counter += 1
+
+print('deleted {} of {} container(s)'.format(deleted_counter, len(sorted_containers)), file=sys.stderr)
