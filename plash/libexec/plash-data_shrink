@@ -6,7 +6,10 @@ import os
 import math
 import sys
 import shutil
-from plash import utils
+from plash import unshare, utils
+
+# allows changing subuids in the fs
+unshare.unshare_if_user()
 
 DELETE_PERCENT = 50
 

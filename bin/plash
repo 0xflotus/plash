@@ -6,7 +6,9 @@ import plash
 from plash.utils import die
 
 SUBSUBCOMMANDS = [
-    'data'
+    'data',
+    'help',
+    'import',
 ]
 
 def die_helping():
@@ -15,6 +17,8 @@ def die_helping():
         file=sys.stderr)
     sys.exit(1)
 
+def subcommand_not_found(subcommand):
+    die('no such command: {} (try `plash help`)'.format(subcommand))
 
 try:
     subcommand = sys.argv[1]
@@ -22,13 +26,16 @@ except IndexError:
     die_helping()
 if subcommand in ('-h', '--help'):
     die_helping()
+if '_' in subcommand:
+    # the underscore we use for replacing-with-space-magic
+    subcommand_not_found(subcommand)
 
 libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 
 if subcommand in SUBSUBCOMMANDS and sys.argv[2:]:
-    binfile = 'plash-{}:{}'.format(subcommand, sys.argv[2])
+    binfile = 'plash-{}_{}'.format(subcommand, sys.argv[2])
     args = sys.argv[3:]
     not_found_debug = '{} {}'.format(subcommand, sys.argv[2])
 else:
@@ -40,4 +47,4 @@ binfilepath = os.path.join(libexec, binfile)
 try:
     os.execlp(binfilepath, binfile, *args)
 except FileNotFoundError:
-    die('no such command: {} (try `plash help`)'.format(not_found_debug))
+    subcommand_not_found(not_found_debug)
