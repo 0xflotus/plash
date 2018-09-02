@@ -10,9 +10,13 @@ from shutil import rmtree
 
 from plash.utils import (get_plash_data, handle_build_args, handle_help_flag,
                          nodepath_or_die, die_with_usage, mkdtemp)
+from plash.unshare import unshare_if_user
 
 handle_help_flag()
 handle_build_args()
+
+# fs access could need mapped users support
+unshare_if_user()
 
 try:
     container = sys.argv[1]

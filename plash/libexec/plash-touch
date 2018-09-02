@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from time import time
 import sys
 import os
 from plash import utils
@@ -18,6 +19,7 @@ for part in reversed(nodepath.split('/')):
         break
     parts.insert(0, part)
 
+now = int(time())
 for container_id in parts:
     index_link = os.path.join(index_dir, container_id)
-    os.utime(index_link, follow_symlinks=False)
+    os.utime(index_link, (now, now), follow_symlinks=False)
