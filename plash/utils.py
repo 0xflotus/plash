@@ -157,7 +157,7 @@ def assert_initialized():
     if not os.path.exists(last_inited):
         import subprocess
         with catch_and_die([subprocess.CalledProcessError]):
-            print('plash: implicitly calling `plash data init`', file=sys.stderr)
+            print('plash: warning: implicitly calling `plash data init`', file=sys.stderr)
             subprocess.check_call(['plash', 'data', 'init'])
 
 def run_write_read(cmd, input):
