@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+from plash import utils
+
+try:
+    container_id = sys.argv[1]
+except IndexError:
+    utils.die_with_usage()
+
+nodepath = utils.nodepath_or_die(container_id)
+index_dir = os.path.join(utils.get_plash_data(), 'index')
+
+parts = []
+for part in reversed(nodepath.split('/')):
+    if not part.isdigit():
+        break
+    parts.insert(0, part)
+
+for container_id in parts:
+    index_link = os.path.join(index_dir, container_id)
+    os.utime(index_link, follow_symlinks=False)

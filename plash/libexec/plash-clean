@@ -78,34 +78,45 @@ for file in os.listdir(tmp):
         deleted_tmps += 1
 print('cleaned {} unused tmp directories'.format(deleted_tmps), file=sys.stderr)
 
-#
-# Delete some older containers
-#
-arg_percent = 30
-def cmp(obj):
-    try:
-        return -int(obj)
-    except ValueError:
-        return 1
-index_dir = os.path.join(plash_data, 'index')
-indexes = os.listdir(index_dir)
-indexes.sort(key=cmp)
-delete_before_counter = round((arg_percent / 100.0) * len(indexes))
-for counter, container_id in enumerate(indexes):
 
-    if container_id == '0': # the special root container, don't touch that one
-        continue
-
-    if counter >= delete_before_counter:
-        break
-
+modified_times = []
+for container_id in os.listdir(index_dir):
     index_path = os.path.join(index_dir, container_id)
-    node = os.readlink(index_path)
-    tmp = utils.mkdtemp()
-    try:
-        os.rename(node, tmp)
-    except FileNotFoundError:
-        # already deleted build, delete index
-        os.unlink(index_path)
-    shutil.rmtree(tmp)
-print('deleted {} of {} containers'.format(counter, len(indexes)), file=sys.stderr)
+    st = os.lstat(index_path)
+    modified_times.append((container_id, st.st_mtime))
+
+modified_times.sort(key=lambda i: i[1])
+from pprint import pprint
+pprint(modified_times)
+
+##
+## Delete some older containers
+##
+#arg_percent = 30
+#def cmp(obj):
+#    try:
+#        return -int(obj)
+#    except ValueError:
+#        return 1
+#index_dir = os.path.join(plash_data, 'index')
+#indexes = os.listdir(index_dir)
+#indexes.sort(key=cmp)
+#delete_before_counter = round((arg_percent / 100.0) * len(indexes))
+#for counter, container_id in enumerate(indexes):
+#
+#    if container_id == '0': # the special root container, don't touch that one
+#        continue
+#
+#    if counter >= delete_before_counter:
+#        break
+#
+#    index_path = os.path.join(index_dir, container_id)
+#    node = os.readlink(index_path)
+#    tmp = utils.mkdtemp()
+#    try:
+#        os.rename(node, tmp)
+#    except FileNotFoundError:
+#        # already deleted build, delete index
+#        os.unlink(index_path)
+#    shutil.rmtree(tmp)
+#print('deleted {} of {} containers'.format(counter, len(indexes)), file=sys.stderr)
