@@ -29,16 +29,10 @@ for container_id in containers:
     modified_times.append((container_id, st.st_mtime))
 
 def key(item):
-    # get first all containers that are not sticky (timestamp is not zero),
-    # then all containers with the oldest modification timestamp,
-    # if modification timestamps are equal, get the containers with
+    # if the atime is the same, get the containers with
     # the lowest id last so we don't delete containers with children.
     container_id, timestamp = item
-    if timestamp:
-        sticky = 0
-    else:
-        sticky = 1
-    return sticky, timestamp, -int(container_id)
+    return timestamp, -int(container_id)
 
 modified_times.sort(key=key)
 sorted_containers = [i[0] for i in modified_times]
