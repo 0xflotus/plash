@@ -155,7 +155,7 @@ def plash_map(*args):
 def assert_initialized():
     last_inited = join(get_plash_data(), 'index', '0')
     if not os.path.exists(last_inited):
-        die('first run `plash init`')
+        die('please run `plash data init`')
 
 def run_write_read(cmd, input):
     import subprocess

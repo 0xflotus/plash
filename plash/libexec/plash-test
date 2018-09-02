@@ -26,7 +26,7 @@ for script in $testfiles ; do
   # setup test env
   tmp=$(mktemp -d /tmp/plashtest-XXXXXXXX) # if we want to use it inside plash we cant user an overlay mounted fs
   export PLASH_DATA=$tmp
-  plash init
+  plash data init
   plash import-tar $DIR/../fixtures/busybox.tar > /dev/null
 
   printf ${script:2} # magic 2 is the length of "./"

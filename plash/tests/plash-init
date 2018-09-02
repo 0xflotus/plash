@@ -1,20 +1,20 @@
 #!/bin/sh
 set -eux
 
-: plash init populates dir
+: plash data init populates dir
 export PLASH_DATA=$(mktemp -d)
-plash init
+plash data init
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
 
-: calling plash init two times does not crash
+: calling plash data init two times does not crash
 export PLASH_DATA=$(mktemp -d)
-plash init
-plash init
+plash data init
+plash data init
 
-: plash init creates dir
+: plash data init creates dir
 tmp=$(mktemp -d)
 export PLASH_DATA=$tmp/myplashdata
-plash init
+plash data init
 out=$(ls -A $tmp/myplashdata)
 test -n "$out"
