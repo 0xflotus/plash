@@ -5,6 +5,9 @@ import sys
 import plash
 from plash.utils import die
 
+SUBSUBCOMMANDS = [
+    'system'
+]
 
 def die_helping():
     print(
@@ -24,9 +27,17 @@ libdir = os.path.dirname(plash.__file__)
 libexec = os.path.join(libdir, 'libexec')
 os.environ['PATH'] = '{}:{}'.format(libexec, os.environ['PATH'])
 
-binfile = 'plash-{}'.format(subcommand)
+if subcommand in SUBSUBCOMMANDS and sys.argv[2:]:
+    binfile = 'plash-{}:{}'.format(subcommand, sys.argv[2])
+    args = sys.argv[3:]
+    not_found_debug = '{} {}'.format(subcommand, sys.argv[2])
+else:
+    binfile = 'plash-{}'.format(subcommand)
+    args = sys.argv[2:]
+    not_found_debug = subcommand
+
 binfilepath = os.path.join(libexec, binfile)
 try:
-    os.execlp(binfilepath, binfile, *sys.argv[2:])
+    os.execlp(binfilepath, binfile, *args)
 except FileNotFoundError:
-    die('no such command: {} (try `plash list`)'.format(subcommand))
+    die('no such command: {} (try `plash list`)'.format(not_found_debug))
