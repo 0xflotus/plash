@@ -6,6 +6,7 @@ import os
 import math
 import sys
 import shutil
+import subprocess
 from plash import unshare, utils
 
 # allows changing subuids in the fs
@@ -13,20 +14,31 @@ unshare.unshare_if_user()
 
 DELETE_PERCENT = 50
 
-##
-## Delete some older containers
-##
+# we need to clean the index links since we suppose that each represents an container
+subprocess.call(['plash-data_clean', '--clean-index'])
+
 modified_times = []
 index_dir = os.path.join(utils.get_plash_data(), 'index')
 containers = os.listdir(index_dir)
 containers.remove('0') # don't mess around with the special root container
 for container_id in containers:
     index_path = os.path.join(index_dir, container_id)
+    if not container_id.isdigit():
+        print('bad {}'.format(index_path), file=sys.stderr)
     st = os.lstat(index_path)
     modified_times.append((container_id, st.st_mtime))
 
-modified_times.sort(key=lambda i: (i[1], -int(i[0]))) # catch that ValuError in the int()
+def key(item):
+    container_id, timestamp = item
+    if timestamp:
+        sticky = 0
+    else:
+        sticky = 1
+    return sticky, timestamp, -int(container_id)
+
+modified_times.sort(key=key)
 sorted_containers = [i[0] for i in modified_times]
+assert 0, sorted_containers
 
 delete_until_index = int(math.ceil((DELETE_PERCENT / 100.0) * len(sorted_containers)))
 delete_containers = sorted_containers[:delete_until_index]
