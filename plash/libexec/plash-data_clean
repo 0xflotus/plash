@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: plash system reset
+# usage: plash data clean [ --clean-index ] [ --clean-cache-keys ] [ --clean-tmp ]
 # clean older containers
 
 import os

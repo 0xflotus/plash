@@ -4,32 +4,32 @@ set -eux
 : check that purge works, confirm trough stdin
 export PLASH_DATA=$(mktemp -d)
 plash data init
-echo 'yes' | plash purge
+echo 'yes' | plash data reset
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
 
 : purge two times
 export PLASH_DATA=$(mktemp -d)
 plash data init
-plash purge --yes
-plash purge --yes
+plash data reset --yes
+plash data reset --yes
 
-: call plash purge on empty plash data
+: call plash data reset on empty plash data
 export PLASH_DATA=$(mktemp -d)
-plash purge --yes
+plash data reset --yes
 
 : check that purge removes all data in the PLASH_DATA directory
 export PLASH_DATA=$(mktemp -d)
 plash data init
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
-plash purge --yes
+plash data reset --yes
 out=$(ls -A $PLASH_DATA)
 test -z "$out"
 
 : not confirming does not delete the data
 export PLASH_DATA=$(mktemp -d)
 plash data init
-echo 'no' | plash purge
+echo 'no' | plash data reset
 out=$(ls -A $PLASH_DATA)
 test -n "$out"
