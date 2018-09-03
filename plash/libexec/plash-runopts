@@ -43,7 +43,6 @@ if args.changes:
 else:
     changesdir = mkdtemp()
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-touch', args.container]) # register that we used this container
     check_call(['plash-mount', args.container, mountpoint, changesdir])
 
 unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
