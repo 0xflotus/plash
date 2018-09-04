@@ -63,6 +63,9 @@ os.mkdir(join(prepared_new_node, '_data'), 0o700)
 # data for the root folder ('/' after a chroot)
 with catch_and_die([OSError], debug='rename'):
     os.rename(import_dir, join(prepared_new_node, '_data', 'root'))
+with catch_and_die([OSError], debug='open'):
+    with open(join(prepared_new_node, '_data', 'access'), 'w'):
+        pass
 
 #
 #  Register that we are using this new_node_path,

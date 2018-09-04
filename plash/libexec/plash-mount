@@ -29,6 +29,7 @@ except ValueError:
     die_with_usage()
 
 nodepath = nodepath_or_die(container)
+plash_data = get_plash_data()
 
 # conservatly validate the changedir
 if changedir and not changedir.replace('.', '').replace('/', '').replace(
@@ -43,14 +44,19 @@ while True:
     if pop == '0':
         break
 
+# read from the access file so the os can (depending on its configuration)
+# update the access time.
+for container_id in container_ids_path:
+    access_file = join(plash_data, 'index', container_id, '_data', 'access')
+    with open(access_file, 'r') as f:
+        f.read()
+
 # use the symlinks and not the full paths because the arg size is limited
 # On my setup i get 58 (EDIT: should be more now) layers before an error,
 # we could have multiple mount calls to overcome this
-plash_data = get_plash_data()
 lowerdir_list = [
     join(plash_data, 'index', i, '_data', 'root') for i in container_ids_path
 ]
-
 
 def mount_unionfs(lowerdir_list, mountpoint, changedir):
     lowerdirs_str = ':'.join('{}=RO'.format(i) for i in lowerdir_list)
