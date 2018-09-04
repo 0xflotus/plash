@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # usage: plash shrink
-# Delete half of the less used containers
+# Delete half of the older containers
+# It attempts to delete older containers and
+# not the newer ones so there is some rotation.
 
 import os
 import math
@@ -9,20 +11,19 @@ import shutil
 import subprocess
 from plash import unshare, utils
 import tempfile
+from collections import Counter
 
 # allows changing subuids in the fs
 unshare.unshare_if_user()
 
 DELETE_PERCENT = 50
 
-modified_times = []
 index_dir = os.path.join(utils.get_plash_data(), 'index')
-containers = os.listdir(index_dir)
-containers.remove('0') # don't mess around with the special root container
+links = os.listdir(index_dir)
 
-children_count = {}
+node_deletation_effect = Counter()
 nodepaths = {}
-for container_id in list(containers):
+for container_id in links:
     try:
         nodepath = os.readlink(os.path.join(index_dir, container_id))
         os.stat(nodepath) # raises the file not found if containers was deleted
@@ -31,30 +32,33 @@ for container_id in list(containers):
         continue
     nodepaths[container_id] = nodepath
     components = nodepath.split('layers/')[-1].split('/')
-    children_count.setdefault(container_id, 0)
-    for parent in components[:-1]: # not a parent but a sibling or something like that
-        children_count.setdefault(parent, 0)
-        children_count[parent] += 1
+    node_deletation_effect.update(components)
     
-total_containers = len(children_count)
-delete_quota = math.ceil(total_containers * 0.5)
-already_deleted = 0
+nodes = list(node_deletation_effect.keys())
+nodes.sort(key=int)
+delete_quota = math.ceil(len(nodes) * DELETE_PERCENT / 100.0)
 mastertmp = utils.mkdtemp()
-for container_id, children in sorted(children_count.items(), key=lambda i: int(i[0])):
-    affected = children + 1
+already_deleted = 0
+for container_id in nodes:
+    affected = node_deletation_effect[container_id]
 
+    # if we already fulfilled the delete quota, break
     if already_deleted >= delete_quota:
         break
 
-    if already_deleted + affected <= delete_quota:
+    # never delete the special root container
+    if container_id == '0':
+        continue
 
+    # delete this container if does not exceed the quota
+    if already_deleted + affected <= delete_quota:
         tmp = tempfile.mkdtemp(dir=mastertmp)
         try:
             os.rename(nodepaths[container_id], tmp)
         except FileNotFoundError:
-            continue # we or another process already deleted it
+            continue # this or another process already deleted it
         already_deleted += affected
 
-print('deleted {} of {} containers'.format(already_deleted, total_containers), file=sys.stderr)
-print('cleaning up...')
+print('dereferenced {} of {} container(s)'.format(already_deleted, len(nodes)), file=sys.stderr)
+print('removing data...')
 shutil.rmtree(mastertmp)
