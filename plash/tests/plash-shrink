@@ -15,25 +15,36 @@ mknode(){
   plash add-layer "$1" "$tmp"
 }
 
-
 # start from zero
 plash purge --yes
 plash init
 
-# create 2 containers with same parent
+: if called with one node delete it,
+mknode 0
+testshrink 0
+
+: if called with no nodes, stay with no nodes
+testshrink 0
+
+: two simple nodes
+mknode 0
+mknode 0
+testshrink 0 2
+
+: create 2 containers with same parent
 mknode 0
 mknode 1
 mknode 1
 testshrink 0 1
 
-# create 3 containers with same parent
+: create 3 containers with same parent
 mknode 0
 mknode 1
 mknode 1
 mknode 1
 testshrink 0 1 4
 
-# create some containers, where each has one child (except the leave)
+: create some containers, where each has one child - except the leave
 mknode 0
 mknode 1
 mknode 2
@@ -58,10 +69,3 @@ child_b1=$(mknode "$tree_b")
 child_b2=$(mknode "$tree_b")
 child_b3=$(mknode "$tree_b")
 testshrink 0 $tree_b $child_b2 $child_b3
-
-: if called with one node delete it,
-mknode 0
-testshrink 0
-
-: if called with no nodes, stay with no nodes
-testshrink 0
