@@ -1,0 +1,48 @@
+#!/bin/sh
+set -eux
+
+testshrink(){
+  plash shrink
+  plash clean --clean-index
+  out=$(ls $PLASH_DATA/index | tr '\n' ' ')
+  test "$out" = "0 $@ "
+
+  # reinitalizae but keep container 1
+  tmp=$(mktemp -d)
+  mv $PLASH_DATA/layers/0/1/_data/root $tmp
+  plash purge --yes
+  plash init
+  plash add-layer 0 "$tmp/root"
+}
+
+## create 2 containers with same parent
+#plash build -f 1 -x 'touch /a'
+#plash build -f 1 -x 'touch /b'
+#testshrink '1'
+#
+## again to test testshrink: create 2 containers with same parent
+#plash build -f 1 -x 'touch /1'
+#plash build -f 1 -x 'touch /2'
+#testshrink '1'
+#
+## create 3 containers with same parent
+#plash build -f 1 -x 'touch /a'
+#plash build -f 1 -x 'touch /b'
+#plash build -f 1 -x 'touch /c'
+#testshrink '1 4'
+#
+## create 3 containers, where each has one child (except the leave)
+#plash build -f 1 --invalidate-layer -l --invalidate-layer -l --invalidate-layer -l 
+#testshrink '1 2'
+
+# create an older and a newer tree
+root_a=$(plash create 1 true)
+child_a1=$(plash create "$root_a" true)
+child_a2=$(plash create "$root_a" true)
+root_b=$(plash create 1 true)
+child_b1=$(plash create "$root_b" true)
+child_b2=$(plash create "$root_b" true)
+child_b3=$(plash create "$root_b" true)
+testshrink "1 $root_b $child_b1 $child_b2 $child_b3"
+
+exit 1
