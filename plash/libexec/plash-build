@@ -40,6 +40,7 @@ import sys
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output
 
 from plash.eval import get_hint_values, hint, remove_hint_values
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, color, die,
                          handle_help_flag, hashstr, info, nodepath_or_die,
                          plash_map)
@@ -49,7 +50,7 @@ assert_initialized()
 
 with catch_and_die([CalledProcessError], silent=True):
     script = subprocess.check_output(
-        ['plash', 'eval'] + sys.argv[1:], stdin=sys.stdin).decode()
+        [utils.get_plash_path(), 'eval'] + sys.argv[1:], stdin=sys.stdin).decode()
 
 hints = get_hint_values(script)
 image_hint = hints.get('image')
@@ -72,7 +73,7 @@ for layer in layers:
 
         # build and cache it
         p = Popen(
-            ['plash', 'create', current_container, 'env', '-i', 'sh', '-l'],
+            [utils.get_plash_path(), 'create', current_container, 'env', '-i', 'sh', '-l'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE)
 

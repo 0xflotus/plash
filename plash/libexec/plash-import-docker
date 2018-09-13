@@ -21,4 +21,4 @@ with utils.catch_and_die([FileNotFoundError, subprocess.CalledProcessError]):
     docker_export = subprocess.Popen(
         ['docker', 'export', container], stdout=subprocess.PIPE)
     atexit.register(lambda: docker_export.kill())
-    subprocess.check_call(['plash', 'import-tar'], stdin=docker_export.stdout)
+    subprocess.check_call([utils.get_plash_path(), 'import-tar'], stdin=docker_export.stdout)

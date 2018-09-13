@@ -27,7 +27,7 @@ def cache_container_hint(cache_key_templ):
 @cache_container_hint('docker:{}')
 def from_docker(image):
     'use image from local docker'
-    return subprocess.check_output(['plash', 'import-docker',
+    return subprocess.check_output([utils.get_plash_path(), 'import-docker',
                                     image]).decode().rstrip('\n')
 
 
@@ -35,7 +35,7 @@ def from_docker(image):
 @cache_container_hint('lxcimages:{}')
 def from_lxcimages(image):
     'use images from images.linuxcontainers.org'
-    return subprocess.check_output(['plash', 'import-lxcimages',
+    return subprocess.check_output([utils.get_plash_path(), 'import-lxcimages',
                                     image]).decode().rstrip('\n')
 
 
@@ -43,7 +43,7 @@ def from_lxcimages(image):
 @cache_container_hint('url:{}')
 def from_url(url):
     'import image from an url'
-    return subprocess.check_output(['plash', 'import-url',
+    return subprocess.check_output([utils.get_plash_path(), 'import-url',
                                     url]).decode().rstrip('\n')
 
 
@@ -60,7 +60,7 @@ class MapDoesNotExist(Exception):
 @register_macro()
 def from_map(map_key):
     'use resolved map as image'
-    image_id = subprocess.check_output(['plash', 'map',
+    image_id = subprocess.check_output([utils.get_plash_path(), 'map',
                                         map_key]).decode().strip('\n')
     if not image_id:
         raise MapDoesNotExist('map {} not found'.format(repr(map_key)))

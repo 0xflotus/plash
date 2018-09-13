@@ -101,4 +101,4 @@ except KeyError:
 
 signature_url = '{}.asc'.format(url)
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash', 'import-url', url, signature_url])
+    check_call([utils.get_plash_path(), 'import-url', url, signature_url])

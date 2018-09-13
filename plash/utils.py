@@ -120,7 +120,7 @@ def handle_build_args():
     if len(sys.argv) >= 2 and sys.argv[1].startswith('-'):
         cmd, args = filter_positionals(sys.argv[1:])
         with catch_and_die([subprocess.CalledProcessError], silent=True):
-            out = subprocess.check_output(['plash', 'build'] + args)
+            out = subprocess.check_output([get_plash_path(), 'build'] + args)
         container_id = out[:-1]
         execsub(sys.argv[0], container_id, *cmd)
 
@@ -131,7 +131,7 @@ def nodepath_or_die(container, allow_root_container=False):
     extra = [] if not allow_root_container else ['--allow-root-container']
     with catch_and_die([subprocess.CalledProcessError], silent=True):
         return subprocess.check_output(
-            ['plash', 'nodepath', str(container)] + extra, ).decode().strip('\n')
+            [get_plash_path(), 'nodepath', str(container)] + extra, ).decode().strip('\n')
 
 
 def get_default_shell(passwd_file):
@@ -146,7 +146,7 @@ def get_default_shell(passwd_file):
 def plash_map(*args):
     from subprocess import check_output
     'thin wrapper around plash map'
-    out = check_output(['plash', 'map'] + list(args))
+    out = check_output([get_plash_path(), 'map'] + list(args))
     if out == '':
         return None
     return out.decode().strip('\n')
@@ -175,6 +175,11 @@ def mkdtemp():
         dir=os.path.join(get_plash_data(), 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
 
+def get_plash_path(script='path'):
+    import plash
+    libdir = os.path.dirname(plash.__file__)
+    libexec = os.path.join(libdir, 'libexec')
+    return os.path.join(libexec, script)
 
 def execsub(*args):
     import plash
@@ -183,10 +188,8 @@ def execsub(*args):
         if hasattr(arg, 'decode')
         else arg
         for arg in args]
-    libdir = os.path.dirname(plash.__file__)
-    libexec = os.path.join(libdir, 'libexec')
-    execfile = os.path.join(libexec, args[0])
 
+    execfile = get_plash_path(sys.argv[0])
     is_python = False
     with open(execfile) as f:
         check_shebang = '#!/usr/bin/env python3'

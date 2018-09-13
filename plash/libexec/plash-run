@@ -21,4 +21,4 @@ try:
 except ValueError:
     die_with_usage()
 
-utils.execsub('plash', 'runopts', '--', container_id, *cmd)
+utils.execsub(utils.get_plash_path(), 'runopts', '--', container_id, *cmd)
