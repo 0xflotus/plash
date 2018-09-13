@@ -186,5 +186,14 @@ def execsub(*args):
     libdir = os.path.dirname(plash.__file__)
     libexec = os.path.join(libdir, 'libexec')
     execfile = os.path.join(libexec, args[0])
-    sys.argv = [execfile] + list(args[1:])
-    runpy.run_path(execfile)
+
+    is_python = False
+    with open(execfile) as f:
+        check_shebang = '#!/usr/bin/env python3'
+        is_python = f.read(len(check_shebang)) == check_shebang
+
+    if is_python:
+        sys.argv = [execfile] + list(args[1:])
+        runpy.run_path(execfile)
+    else:
+        os.execl(execfile, execfile, *args[1:])

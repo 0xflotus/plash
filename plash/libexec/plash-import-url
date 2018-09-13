@@ -11,6 +11,7 @@ from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 
 import plash
+from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, handle_help_flag, mkdtemp)
 
