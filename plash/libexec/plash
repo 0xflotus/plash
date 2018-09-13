@@ -5,7 +5,6 @@ import sys
 import plash
 from plash import utils
 from plash.utils import die
-from plash import libexec
 
 
 def die_helping():
@@ -22,7 +21,7 @@ except IndexError:
 if subcommand in ('-h', '--help'):
     die_helping()
 
-#try:
-utils.execsub('plash-' + subcommand, *sys.argv[2:])
-#except FileNotFoundError:
-    #die('no such command: {} (try `plash help`)'.format(subcommand))
+try:
+    utils.execsub('plash-' + subcommand, *sys.argv[2:])
+except FileNotFoundError:
+    die('no such command: {} (try `plash help`)'.format(subcommand))

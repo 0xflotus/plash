@@ -1,0 +1,22 @@
+#!/usr/bin/env plash-exec 
+
+--# older ubuntu for older dependencies
+-f xenial
+
+--apt python3-pip
+--run
+pip3 install --no-cache-dir pyinstaller
+
+--layer
+--entrypoint-script
+--\ exec \
+--\ pyinstaller \
+--\ plash/libexec/plash \
+--\ --onefile \
+--\ -y \
+--\ --hidden-import plash.utils \
+--\ --hidden-import plash.macros.all \
+--\ --hidden-import plash.unshare \
+--\ --add-data plash/libexec/:plash/libexec/ \
+--\ --add-data plash/tests/:plash/tests/ \
+--\ --add-data plash/fixtures/:plash/fixtures/
