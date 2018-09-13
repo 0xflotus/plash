@@ -197,3 +197,11 @@ def execsub(*args):
         runpy.run_path(execfile)
     else:
         os.execl(execfile, execfile, *args[1:])
+
+def urlopen_or_die(url):
+    import subprocess
+    return subprocess.check_output(['curl', '-sL', url])
+
+def urlretrieve_or_die(url, out):
+    import subprocess
+    return subprocess.check_output(['curl', '--progress-bar', '-L', url, '-o', out])

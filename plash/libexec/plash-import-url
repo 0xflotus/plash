@@ -8,22 +8,11 @@ import subprocess
 import sys
 from http.client import HTTPException
 from urllib.error import URLError
-from urllib.request import urlopen, urlretrieve
 
 import plash
 from plash import utils
 from plash.utils import (assert_initialized, catch_and_die, die,
                          die_with_usage, handle_help_flag, mkdtemp)
-
-MAX_SIGNATURE_LENGTH = 8192
-
-
-def reporthook(count, block_size, total_size):
-    if total_size not in (0, -1):
-        sys.stderr.write('plash: import-url: fetching {}%\r'.format(
-            round(100 * count * min(block_size / total_size, 1))))
-        if count * block_size >= total_size:
-            sys.stderr.write('\n')
 
 
 handle_help_flag()
@@ -45,10 +34,10 @@ downloaded_rootfs = os.path.join(mkdtemp(), 'rootfs')
 with catch_and_die(
     [HTTPException, ValueError, URLError],
         debug='geturl({})'.format(repr(url))):
-    urlretrieve(url, downloaded_rootfs, reporthook=reporthook)
+    utils.urlretrieve_or_die(url, downloaded_rootfs)
 
 if gpg_signature_url:
-    signature = urlopen(gpg_signature_url).read(MAX_SIGNATURE_LENGTH)
+    signature = utils.urlopen_or_die(gpg_signature_url)
     try:
         p = subprocess.Popen(
             [

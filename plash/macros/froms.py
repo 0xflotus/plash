@@ -80,11 +80,8 @@ def from_(image):
 @cache_container_hint('github:{}')
 def from_github(user_repo_pair, file='plashfile'):
     "build and use a file (default 'plashfile') from github repo"
-    from urllib.request import urlopen
     url = 'https://raw.githubusercontent.com/{}/master/{}'.format(
         user_repo_pair, file)
-    with utils.catch_and_die([Exception], debug=url):
-        resp = urlopen(url)
-    plashstr = resp.read()
+    plashstr = utils.urlopen_or_die(url)
     return utils.run_write_read(['plash', 'build', '--eval-stdin'],
                                 plashstr).decode().rstrip('\n')
