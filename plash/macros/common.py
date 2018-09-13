@@ -8,6 +8,7 @@ import uuid
 
 from plash.eval import (eval, hint, join_result, register_macro,
                         shell_escape_args)
+from plash import utils
 from plash.utils import catch_and_die, hashstr, plash_map, run_write_read
 
 

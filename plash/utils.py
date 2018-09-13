@@ -175,7 +175,7 @@ def mkdtemp():
         dir=os.path.join(get_plash_data(), 'tmp'),
         prefix='plashtmp_{}_{}_'.format(os.getsid(0), os.getpid()))
 
-def get_plash_path(script='path'):
+def get_plash_path(script='plash'):
     import plash
     libdir = os.path.dirname(plash.__file__)
     libexec = os.path.join(libdir, 'libexec')
@@ -189,7 +189,7 @@ def execsub(*args):
         else arg
         for arg in args]
 
-    execfile = get_plash_path(sys.argv[0])
+    execfile = get_plash_path(args[0])
     is_python = False
     with open(execfile) as f:
         check_shebang = '#!/usr/bin/env python3'
