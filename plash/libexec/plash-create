@@ -29,6 +29,7 @@ from os.path import join
 from subprocess import DEVNULL, CalledProcessError, Popen
 from sys import exit
 
+from plash import utils
 from plash.utils import (assert_initialized, die, die_with_usage,
                          get_plash_data, handle_build_args, handle_help_flag,
                          mkdtemp, nodepath_or_die)
@@ -50,7 +51,7 @@ nodepath_or_die(container)
 changesdir = mkdtemp()
 p = subprocess.Popen(
     [
-        'plash-runopts',
+        'plash', 'runopts',
         '--no-default-binds',
         '--bind',
         '/home',
@@ -76,5 +77,5 @@ exit = p.wait()
 if exit:
     die("build failed with exit status {}".format(exit), exit=4)
 
-os.execlp('plash-add-layer', 'plash-add-layer', container,
+utils.execsub('plash', 'add-layer', container,
           os.path.join(changesdir, 'data'))

@@ -9,6 +9,7 @@ import shlex
 import sys
 from subprocess import check_call
 
+from plash import utils
 from plash.utils import (die_with_usage, get_plash_data, handle_build_args,
                          handle_help_flag, nodepath_or_die)
 
@@ -20,4 +21,4 @@ try:
 except ValueError:
     die_with_usage()
 
-os.execlp('plash-runopts', 'plash-runopts', '--', container_id, *cmd)
+utils.execsub('plash', 'runopts', '--', container_id, *cmd)

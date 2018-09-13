@@ -6,8 +6,8 @@
 # If no file is supplied or the file is '-' the tar archive wil be printed to stdout instead.
 
 import sys
-from os import execlp
 
+from plash import utils
 from plash.utils import die_with_usage, handle_build_args, handle_help_flag
 
 handle_help_flag()
@@ -18,5 +18,5 @@ try:
 except IndexError:
     die_with_usage()
 
-execlp('plash-with-mount', 'plash-with-mount', container, 'tar', '-cf',
+utils.execsub('plash', 'with-mount', container, 'tar', '-cf',
        sys.argv[2] if len(sys.argv) > 2 else '-', '.')

@@ -30,7 +30,7 @@ mountpoint = mkdtemp()
 
 unshare_if_root()
 with catch_and_die([CalledProcessError], silent=True):
-    check_call(['plash-mount', container, mountpoint])
+    check_call(['plash', 'mount', container, mountpoint])
 unshare_if_user(extra_setup_cmd=['fusermount', '-u', mountpoint])
 os.chdir(mountpoint)
 try:

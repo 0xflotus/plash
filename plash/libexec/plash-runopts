@@ -51,7 +51,7 @@ else:
     changesdir = mkdtemp()
 with catch_and_die([CalledProcessError], silent=True):
     try:
-        check_call(['plash-mount', args.container, mountpoint, changesdir])
+        check_call(['plash', 'mount', args.container, mountpoint, changesdir])
     except CalledProcessError:
         if original_uid:
             print(
