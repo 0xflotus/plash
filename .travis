@@ -38,6 +38,7 @@ export COVERAGE_PROCESS_START=$covtmp/.coveragerc
 python3-coverage erase
 cd /
 plash init
+ls
 plash test
 cd - 2> /dev/null
 
